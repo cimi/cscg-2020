@@ -1,0 +1,25 @@
+Foremost version 1.5.7 by Jesse Kornblum, Kris Kendall, and Nick Mikus
+Audit File
+
+Foremost started at Sat Apr 11 18:12:34 2020
+Invocation: foremost redpill.jpg 
+Output directory: /pwd/output
+Configuration file: /etc/foremost.conf
+------------------------------------------------------------------
+File: redpill.jpg
+Start: Sat Apr 11 18:12:34 2020
+Length: 885 KB (907173 bytes)
+ 
+Num	 Name (bs=512)	       Size	 File Offset	 Comment 
+
+0:	00000000.jpg 	     885 KB 	          0 	 
+1:	00001771.zip 	      224 B 	     906949 	 
+Finish: Sat Apr 11 18:12:34 2020
+
+2 FILES EXTRACTED
+	
+jpg:= 1
+zip:= 1
+------------------------------------------------------------------
+
+Foremost finished at Sat Apr 11 18:12:34 2020

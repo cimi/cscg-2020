@@ -1,0 +1,549 @@
+// Decompiled with JetBrains decompiler
+// Type: ReMe.StringEncryption
+// Assembly: ReMe, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: EC6006B3-161A-4B3B-8CC5-6982D1FCB67B
+// Assembly location: C:\Users\alexc\Downloads\ReMe.dll
+
+using System;
+using System.IO;
+using System.Security.Cryptography;
+using System.Text;
+
+namespace ReMe
+{
+  public static class StringEncryption
+  {
+    public static string Encrypt(string clearText)
+    {
+      string password = "A_Wise_Man_Once_Told_Me_Obfuscation_Is_Useless_Anyway";
+      byte[] bytes = Encoding.get_Unicode().GetBytes(clearText);
+      using (Aes aes = Aes.Create())
+      {
+        Rfc2898DeriveBytes rfc2898DeriveBytes = new Rfc2898DeriveBytes(password, new byte[13]
+        {
+          (byte) 73,
+          (byte) 118,
+          (byte) 97,
+          (byte) 110,
+          (byte) 32,
+          (byte) 77,
+          (byte) 101,
+          (byte) 100,
+          (byte) 118,
+          (byte) 101,
+          (byte) 100,
+          (byte) 101,
+          (byte) 118
+        });
+        aes.Key = rfc2898DeriveBytes.GetBytes(32);
+        aes.IV = rfc2898DeriveBytes.GetBytes(16);
+        using (MemoryStream memoryStream = new MemoryStream())
+        {
+          using (CryptoStream cryptoStream = new CryptoStream((Stream) memoryStream, aes.CreateEncryptor(), CryptoStreamMode.Write))
+          {
+            ((Stream) cryptoStream).Write(bytes, 0, bytes.Length);
+            ((Stream) cryptoStream).Close();
+          }
+          clearText = Convert.ToBase64String(memoryStream.ToArray());
+        }
+      }
+      return clearText;
+    }
+
+    public static string Decrypt(string cipherText)
+    {
+      string password = "A_Wise_Man_Once_Told_Me_Obfuscation_Is_Useless_Anyway";
+      cipherText = cipherText.Replace(" ", "+");
+      byte[] numArray = Convert.FromBase64String(cipherText);
+      using (Aes aes = Aes.Create())
+      {
+        Rfc2898DeriveBytes rfc2898DeriveBytes = new Rfc2898DeriveBytes(password, new byte[13]
+        {
+          (byte) 73,
+          (byte) 118,
+          (byte) 97,
+          (byte) 110,
+          (byte) 32,
+          (byte) 77,
+          (byte) 101,
+          (byte) 100,
+          (byte) 118,
+          (byte) 101,
+          (byte) 100,
+          (byte) 101,
+          (byte) 118
+        });
+        aes.Key = rfc2898DeriveBytes.GetBytes(32);
+        aes.IV = rfc2898DeriveBytes.GetBytes(16);
+        using (MemoryStream memoryStream = new MemoryStream())
+        {
+          using (CryptoStream cryptoStream = new CryptoStream((Stream) memoryStream, aes.CreateDecryptor(), CryptoStreamMode.Write))
+          {
+            ((Stream) cryptoStream).Write(numArray, 0, numArray.Length);
+            ((Stream) cryptoStream).Close();
+          }
+          cipherText = Encoding.get_Unicode().GetString(memoryStream.ToArray());
+        }
+      }
+      return cipherText;
+    }
+  }
+}
+
+// Decompiled with JetBrains decompiler
+// Type: ReMe.Program
+// Assembly: ReMe, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: EC6006B3-161A-4B3B-8CC5-6982D1FCB67B
+// Assembly location: C:\Users\alexc\Downloads\ReMe.dll
+
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using System.Text;
+
+namespace ReMe
+{
+  internal class Program
+  {
+    static Program()
+    {
+      Program.Initialize();
+    }
+
+    private static void Main(string[] args)
+    {
+      Program.InitialCheck(args);
+			// get method bytecode
+      byte[] ilAsByteArray = ((MethodBase) typeof (Program).GetMethod("InitialCheck", (BindingFlags) 40)).GetMethodBody().GetILAsByteArray();
+			// load dll in memory stream
+      byte[] self = File.ReadAllBytes(Assembly.GetExecutingAssembly().get_Location());
+			// find string in dll?
+      int[] numArray = self.Locate(Encoding.get_ASCII().GetBytes("THIS_IS_CSCG_NOT_A_MALWARE!"));
+      MemoryStream memoryStream = new MemoryStream(self);
+			// jump to right after string
+      ((Stream) memoryStream).Seek((long) (numArray[0] + Encoding.get_ASCII().GetBytes("THIS_IS_CSCG_NOT_A_MALWARE!").Length), (SeekOrigin) 0);
+			// take the rest of the file
+      byte[] bytesToBeDecrypted = new byte[((Stream) memoryStream).get_Length() - ((Stream) memoryStream).get_Position()];
+      ((Stream) memoryStream).Read(bytesToBeDecrypted, 0, bytesToBeDecrypted.Length);
+			// WTF? print out program bytes and decompile those?
+      ((MethodBase) Assembly.Load(Program.AES_Decrypt(bytesToBeDecrypted, ilAsByteArray)).GetTypes()[0].GetMethod("Check", (BindingFlags) 24)).Invoke((object) null, new object[1]
+      {
+        (object) args
+      });
+    }
+
+    public static string CalculateMD5Hash(byte[] input)
+    {
+      byte[] hash = MD5.Create().ComputeHash(input);
+      StringBuilder stringBuilder = new StringBuilder();
+      for (int index = 0; index < hash.Length; ++index)
+        stringBuilder.Append(hash[index].ToString("X2"));
+      return stringBuilder.ToString();
+    }
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern bool CheckRemoteDebuggerPresent(
+      IntPtr hProcess,
+      ref bool isDebuggerPresent);
+
+    [DllImport("kernel32.dll")]
+    private static extern bool IsDebuggerPresent();
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+    public static extern IntPtr GetModuleHandle(string lpModuleName);
+
+    [DllImport("kernel32", CharSet = CharSet.Ansi, SetLastError = true)]
+    private static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
+
+    private static void InitialCheck(string[] args)
+    {
+      Program.Initialize();
+      if (Debugger.IsAttached)
+      {
+        Console.WriteLine("Nope");
+        Environment.Exit(-1);
+      }
+      bool isDebuggerPresent = true;
+      Program.CheckRemoteDebuggerPresent(Process.GetCurrentProcess().Handle, ref isDebuggerPresent);
+      if (isDebuggerPresent)
+      {
+        Console.WriteLine("Nope");
+        Environment.Exit(-1);
+      }
+      if (Program.IsDebuggerPresent())
+      {
+        Console.WriteLine("Nope");
+        Environment.Exit(-1);
+      }
+      if (args.Length == 0)
+      {
+        Console.WriteLine("Usage: ReMe.exe [password] [flag]");
+        Environment.Exit(-1);
+      }
+      if (args[0] != StringEncryption.Decrypt("D/T9XRgUcKDjgXEldEzeEsVjIcqUTl7047pPaw7DZ9I="))
+      {
+        Console.WriteLine("Nope");
+        Environment.Exit(-1);
+      }
+      else
+        Console.WriteLine("There you go. Thats the first of the two flags! CSCG{{{0}}}", (object) args[0]);
+      IntPtr moduleHandle = Program.GetModuleHandle("kernel32.dll");
+      if (!(moduleHandle != IntPtr.Zero) || Marshal.ReadByte(Program.GetProcAddress(moduleHandle, "CheckRemoteDebuggerPresent")) != (byte) 233)
+        return;
+      Console.WriteLine("Nope!");
+      Environment.Exit(-1);
+    }
+
+    public static byte[] AES_Encrypt(byte[] bytesToBeEncrypted, byte[] passwordBytes)
+    {
+      byte[] numArray = (byte[]) null;
+      byte[] salt = new byte[8]
+      {
+        (byte) 1,
+        (byte) 2,
+        (byte) 3,
+        (byte) 4,
+        (byte) 5,
+        (byte) 6,
+        (byte) 7,
+        (byte) 8
+      };
+      using (MemoryStream memoryStream = new MemoryStream())
+      {
+        using (RijndaelManaged rijndaelManaged = new RijndaelManaged())
+        {
+          ((SymmetricAlgorithm) rijndaelManaged).KeySize = 256;
+          ((SymmetricAlgorithm) rijndaelManaged).BlockSize = 128;
+          Rfc2898DeriveBytes rfc2898DeriveBytes = new Rfc2898DeriveBytes(passwordBytes, salt, 1000);
+          ((SymmetricAlgorithm) rijndaelManaged).Key = rfc2898DeriveBytes.GetBytes(((SymmetricAlgorithm) rijndaelManaged).KeySize / 8);
+          ((SymmetricAlgorithm) rijndaelManaged).IV = rfc2898DeriveBytes.GetBytes(((SymmetricAlgorithm) rijndaelManaged).BlockSize / 8);
+          ((SymmetricAlgorithm) rijndaelManaged).Mode = CipherMode.CBC;
+          using (CryptoStream cryptoStream = new CryptoStream((Stream) memoryStream, ((SymmetricAlgorithm) rijndaelManaged).CreateEncryptor(), CryptoStreamMode.Write))
+          {
+            ((Stream) cryptoStream).Write(bytesToBeEncrypted, 0, bytesToBeEncrypted.Length);
+            ((Stream) cryptoStream).Close();
+          }
+          numArray = memoryStream.ToArray();
+        }
+      }
+      return numArray;
+    }
+
+    public static byte[] AES_Decrypt(byte[] bytesToBeDecrypted, byte[] passwordBytes)
+    {
+      byte[] numArray = (byte[]) null;
+      byte[] salt = new byte[8]
+      {
+        (byte) 1,
+        (byte) 2,
+        (byte) 3,
+        (byte) 4,
+        (byte) 5,
+        (byte) 6,
+        (byte) 7,
+        (byte) 8
+      };
+      using (MemoryStream memoryStream = new MemoryStream())
+      {
+        using (RijndaelManaged rijndaelManaged = new RijndaelManaged())
+        {
+          ((SymmetricAlgorithm) rijndaelManaged).KeySize = 256;
+          ((SymmetricAlgorithm) rijndaelManaged).BlockSize = 128;
+          Rfc2898DeriveBytes rfc2898DeriveBytes = new Rfc2898DeriveBytes(passwordBytes, salt, 1000);
+          ((SymmetricAlgorithm) rijndaelManaged).Key = rfc2898DeriveBytes.GetBytes(((SymmetricAlgorithm) rijndaelManaged).KeySize / 8);
+          ((SymmetricAlgorithm) rijndaelManaged).IV = rfc2898DeriveBytes.GetBytes(((SymmetricAlgorithm) rijndaelManaged).BlockSize / 8);
+          ((SymmetricAlgorithm) rijndaelManaged).Mode = CipherMode.CBC;
+          using (CryptoStream cryptoStream = new CryptoStream((Stream) memoryStream, ((SymmetricAlgorithm) rijndaelManaged).CreateDecryptor(), CryptoStreamMode.Write))
+          {
+            ((Stream) cryptoStream).Write(bytesToBeDecrypted, 0, bytesToBeDecrypted.Length);
+            ((Stream) cryptoStream).Close();
+          }
+          numArray = memoryStream.ToArray();
+        }
+      }
+      return numArray;
+    }
+
+    [DllImport("kernel32.dll")]
+    private static extern unsafe bool VirtualProtect(
+      byte* lpAddress,
+      int dwSize,
+      uint flNewProtect,
+      out uint lpflOldProtect);
+
+    private static unsafe void Initialize()
+    {
+      Module module = typeof (Program).get_Module();
+      byte* hinstance = (byte*) (void*) Marshal.GetHINSTANCE(module);
+      byte* numPtr1 = hinstance + 60;
+      byte* numPtr2;
+      byte* numPtr3 = (numPtr2 = hinstance + *(uint*) numPtr1) + 6;
+      ushort num1 = *(ushort*) numPtr3;
+      byte* numPtr4 = numPtr3 + 14;
+      ushort num2 = *(ushort*) numPtr4;
+      byte* lpAddress1 = numPtr2 = numPtr4 + 4 + (int) num2;
+      byte* numPtr5 = stackalloc byte[11];
+      if (module.get_FullyQualifiedName()[0] != '<')
+      {
+        byte* lpAddress2 = hinstance + *(uint*) (lpAddress1 - 16);
+        uint lpflOldProtect;
+        if (*(uint*) (lpAddress1 - 120) > 0U)
+        {
+          byte* numPtr6 = hinstance + *(uint*) (lpAddress1 - 120);
+          byte* numPtr7 = hinstance + *(uint*) numPtr6;
+          byte* lpAddress3 = hinstance + *(uint*) (numPtr6 + 12);
+          byte* lpAddress4 = hinstance + *(uint*) numPtr7 + 2;
+          Program.VirtualProtect(lpAddress3, 11, 64U, out lpflOldProtect);
+          *(int*) numPtr5 = 1818522734;
+          *(int*) (numPtr5 + 4) = 1818504812;
+          *(short*) (numPtr5 + (new IntPtr(4) * 2).ToInt64()) = (short) 108;
+          numPtr5[10] = (byte) 0;
+          for (int index = 0; index < 11; ++index)
+            lpAddress3[index] = numPtr5[index];
+          Program.VirtualProtect(lpAddress4, 11, 64U, out lpflOldProtect);
+          *(int*) numPtr5 = 1866691662;
+          *(int*) (numPtr5 + 4) = 1852404846;
+          *(short*) (numPtr5 + (new IntPtr(4) * 2).ToInt64()) = (short) 25973;
+          numPtr5[10] = (byte) 0;
+          for (int index = 0; index < 11; ++index)
+            lpAddress4[index] = numPtr5[index];
+        }
+        for (int index = 0; index < (int) num1; ++index)
+        {
+          Program.VirtualProtect(lpAddress1, 8, 64U, out lpflOldProtect);
+          Marshal.Copy(new byte[8], 0, (IntPtr) (void*) lpAddress1, 8);
+          lpAddress1 += 40;
+        }
+        Program.VirtualProtect(lpAddress2, 72, 64U, out lpflOldProtect);
+        byte* lpAddress5 = hinstance + *(uint*) (lpAddress2 + 8);
+        *(int*) lpAddress2 = 0;
+        *(int*) (lpAddress2 + 4) = 0;
+        *(int*) (lpAddress2 + (new IntPtr(2) * 4).ToInt64()) = 0;
+        *(int*) (lpAddress2 + (new IntPtr(3) * 4).ToInt64()) = 0;
+        Program.VirtualProtect(lpAddress5, 4, 64U, out lpflOldProtect);
+        *(int*) lpAddress5 = 0;
+        byte* numPtr8 = lpAddress5 + 12;
+        if (*(uint*) numPtr8 > 40000U)
+          return;
+        byte* numPtr9 = (byte*) ((ulong) (numPtr8 + *(uint*) numPtr8) + 7UL & 18446744073709551612UL) + 2;
+        ushort num3 = (ushort) *numPtr9;
+        byte* lpAddress6 = numPtr9 + 2;
+        for (int index1 = 0; index1 < (int) num3; ++index1)
+        {
+          Program.VirtualProtect(lpAddress6, 8, 64U, out lpflOldProtect);
+          lpAddress6 = lpAddress6 + 4 + 4;
+          for (int index2 = 0; index2 < 8; ++index2)
+          {
+            Program.VirtualProtect(lpAddress6, 4, 64U, out lpflOldProtect);
+            *lpAddress6 = (byte) 0;
+            byte* numPtr6 = lpAddress6 + 1;
+            if (*numPtr6 == (byte) 0)
+            {
+              lpAddress6 = numPtr6 + 3;
+              break;
+            }
+            *numPtr6 = (byte) 0;
+            byte* numPtr7 = numPtr6 + 1;
+            if (*numPtr7 == (byte) 0)
+            {
+              lpAddress6 = numPtr7 + 2;
+              break;
+            }
+            *numPtr7 = (byte) 0;
+            byte* numPtr10 = numPtr7 + 1;
+            if (*numPtr10 == (byte) 0)
+            {
+              lpAddress6 = numPtr10 + 1;
+              break;
+            }
+            *numPtr10 = (byte) 0;
+            lpAddress6 = numPtr10 + 1;
+          }
+        }
+      }
+      else
+      {
+        uint num3 = *(uint*) (lpAddress1 - 16);
+        uint num4 = *(uint*) (lpAddress1 - 120);
+        uint[] numArray1 = new uint[(int) num1];
+        uint[] numArray2 = new uint[(int) num1];
+        uint[] numArray3 = new uint[(int) num1];
+        uint lpflOldProtect;
+        for (int index = 0; index < (int) num1; ++index)
+        {
+          Program.VirtualProtect(lpAddress1, 8, 64U, out lpflOldProtect);
+          Marshal.Copy(new byte[8], 0, (IntPtr) (void*) lpAddress1, 8);
+          numArray1[index] = *(uint*) (lpAddress1 + 12);
+          numArray2[index] = *(uint*) (lpAddress1 + 8);
+          numArray3[index] = *(uint*) (lpAddress1 + 20);
+          lpAddress1 += 40;
+        }
+        if (num4 > 0U)
+        {
+          for (int index = 0; index < (int) num1; ++index)
+          {
+            if (numArray1[index] <= num4 && num4 < numArray1[index] + numArray2[index])
+            {
+              num4 = num4 - numArray1[index] + numArray3[index];
+              break;
+            }
+          }
+          byte* numPtr6 = hinstance + num4;
+          uint num5 = *(uint*) numPtr6;
+          for (int index = 0; index < (int) num1; ++index)
+          {
+            if (numArray1[index] <= num5 && num5 < numArray1[index] + numArray2[index])
+            {
+              num5 = num5 - numArray1[index] + numArray3[index];
+              break;
+            }
+          }
+          byte* numPtr7 = hinstance + num5;
+          uint num6 = *(uint*) (numPtr6 + 12);
+          for (int index = 0; index < (int) num1; ++index)
+          {
+            if (numArray1[index] <= num6 && num6 < numArray1[index] + numArray2[index])
+            {
+              num6 = num6 - numArray1[index] + numArray3[index];
+              break;
+            }
+          }
+          uint num7 = *(uint*) numPtr7 + 2U;
+          for (int index = 0; index < (int) num1; ++index)
+          {
+            if (numArray1[index] <= num7 && num7 < numArray1[index] + numArray2[index])
+            {
+              num7 = num7 - numArray1[index] + numArray3[index];
+              break;
+            }
+          }
+          Program.VirtualProtect(hinstance + num6, 11, 64U, out lpflOldProtect);
+          *(int*) numPtr5 = 1818522734;
+          *(int*) (numPtr5 + 4) = 1818504812;
+          *(short*) (numPtr5 + (new IntPtr(4) * 2).ToInt64()) = (short) 108;
+          numPtr5[10] = (byte) 0;
+          for (int index = 0; index < 11; ++index)
+            (hinstance + num6)[index] = numPtr5[index];
+          Program.VirtualProtect(hinstance + num7, 11, 64U, out lpflOldProtect);
+          *(int*) numPtr5 = 1866691662;
+          *(int*) (numPtr5 + 4) = 1852404846;
+          *(short*) (numPtr5 + (new IntPtr(4) * 2).ToInt64()) = (short) 25973;
+          numPtr5[10] = (byte) 0;
+          for (int index = 0; index < 11; ++index)
+            (hinstance + num7)[index] = numPtr5[index];
+        }
+        for (int index = 0; index < (int) num1; ++index)
+        {
+          if (numArray1[index] <= num3 && num3 < numArray1[index] + numArray2[index])
+          {
+            num3 = num3 - numArray1[index] + numArray3[index];
+            break;
+          }
+        }
+        byte* lpAddress2 = hinstance + num3;
+        Program.VirtualProtect(lpAddress2, 72, 64U, out lpflOldProtect);
+        uint num8 = *(uint*) (lpAddress2 + 8);
+        for (int index = 0; index < (int) num1; ++index)
+        {
+          if (numArray1[index] <= num8 && num8 < numArray1[index] + numArray2[index])
+          {
+            num8 = num8 - numArray1[index] + numArray3[index];
+            break;
+          }
+        }
+        *(int*) lpAddress2 = 0;
+        *(int*) (lpAddress2 + 4) = 0;
+        *(int*) (lpAddress2 + (new IntPtr(2) * 4).ToInt64()) = 0;
+        *(int*) (lpAddress2 + (new IntPtr(3) * 4).ToInt64()) = 0;
+        byte* lpAddress3 = hinstance + num8;
+        Program.VirtualProtect(lpAddress3, 4, 64U, out lpflOldProtect);
+        *(int*) lpAddress3 = 0;
+        byte* numPtr8 = lpAddress3 + 12;
+        byte* numPtr9 = (byte*) ((ulong) (numPtr8 + *(uint*) numPtr8) + 7UL & 18446744073709551612UL) + 2;
+        ushort num9 = (ushort) *numPtr9;
+        byte* lpAddress4 = numPtr9 + 2;
+        for (int index1 = 0; index1 < (int) num9; ++index1)
+        {
+          Program.VirtualProtect(lpAddress4, 8, 64U, out lpflOldProtect);
+          lpAddress4 = lpAddress4 + 4 + 4;
+          for (int index2 = 0; index2 < 8; ++index2)
+          {
+            Program.VirtualProtect(lpAddress4, 4, 64U, out lpflOldProtect);
+            *lpAddress4 = (byte) 0;
+            byte* numPtr6 = lpAddress4 + 1;
+            if (*numPtr6 == (byte) 0)
+            {
+              lpAddress4 = numPtr6 + 3;
+              break;
+            }
+            *numPtr6 = (byte) 0;
+            byte* numPtr7 = numPtr6 + 1;
+            if (*numPtr7 == (byte) 0)
+            {
+              lpAddress4 = numPtr7 + 2;
+              break;
+            }
+            *numPtr7 = (byte) 0;
+            byte* numPtr10 = numPtr7 + 1;
+            if (*numPtr10 == (byte) 0)
+            {
+              lpAddress4 = numPtr10 + 1;
+              break;
+            }
+            *numPtr10 = (byte) 0;
+            lpAddress4 = numPtr10 + 1;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Decompiled with JetBrains decompiler
+// Type: ReMe.ByteArrayRocks
+// Assembly: ReMe, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: EC6006B3-161A-4B3B-8CC5-6982D1FCB67B
+// Assembly location: C:\Users\alexc\Downloads\ReMe.dll
+
+using System.Collections.Generic;
+
+namespace ReMe
+{
+  internal static class ByteArrayRocks
+  {
+    private static readonly int[] Empty = new int[0];
+
+    public static int[] Locate(this byte[] self, byte[] candidate)
+    {
+      if (ByteArrayRocks.IsEmptyLocate(self, candidate))
+        return ByteArrayRocks.Empty;
+      List<int> intList = new List<int>();
+      for (int position = 0; position < self.Length; ++position)
+      {
+        if (ByteArrayRocks.IsMatch(self, position, candidate))
+          intList.Add(position);
+      }
+      return intList.Count == 0 ? ByteArrayRocks.Empty : intList.ToArray();
+    }
+
+    private static bool IsMatch(byte[] array, int position, byte[] candidate)
+    {
+      if (candidate.Length > array.Length - position)
+        return false;
+      for (int index = 0; index < candidate.Length; ++index)
+      {
+        if ((int) array[position + index] != (int) candidate[index])
+          return false;
+      }
+      return true;
+    }
+
+    private static bool IsEmptyLocate(byte[] array, byte[] candidate)
+    {
+      return array == null || candidate == null || (array.Length == 0 || candidate.Length == 0) || candidate.Length > array.Length;
+    }
+  }
+}

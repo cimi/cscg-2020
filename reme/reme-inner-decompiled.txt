@@ -1,0 +1,61 @@
+using System;
+using System.Security.Cryptography;
+using System.Text;
+
+namespace ReMe_Inner
+{
+	// Token: 0x02000002 RID: 2
+	public class Inner
+	{
+		// Token: 0x06000001 RID: 1 RVA: 0x00002050 File Offset: 0x00000250
+		public static void Check(string[] args)
+		{
+			bool flag = args.Length <= 1;
+			if (flag)
+			{
+				Console.WriteLine("Nope.");
+			}
+			else
+			{
+				string[] array = args[1].Split(new string[]
+				{
+					"_"
+				}, StringSplitOptions.RemoveEmptyEntries);
+				bool flag2 = array.Length != 8;
+				if (flag2)
+				{
+					Console.WriteLine("Nope.");
+				}
+				else
+				{
+					bool flag3 = "CSCG{" + array[0] == "CSCG{n0w" 
+            && array[1] == "u" 
+            && array[2] == "know" 
+            && array[3] == "st4t1c" 
+            && array[4] == "and" 
+            && Inner.CalculateMD5Hash(array[5]).ToLower() == "b72f3bd391ba731a35708bfd8cd8a68f" 
+            && array[6] == "dotNet" 
+            && array[7] + "}" == "R3333}";
+					if (flag3)
+					{
+						Console.WriteLine("Good job :)");
+					}
+				}
+			}
+		}
+
+		// Token: 0x06000002 RID: 2 RVA: 0x0000215C File Offset: 0x0000035C
+		public static string CalculateMD5Hash(string input)
+		{
+			MD5 md = MD5.Create();
+			byte[] bytes = Encoding.ASCII.GetBytes(input);
+			byte[] array = md.ComputeHash(bytes);
+			StringBuilder stringBuilder = new StringBuilder();
+			for (int i = 0; i < array.Length; i++)
+			{
+				stringBuilder.Append(array[i].ToString("X2"));
+			}
+			return stringBuilder.ToString();
+		}
+	}
+}

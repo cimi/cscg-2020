@@ -1,0 +1,29 @@
+Reached position 1110/1337 {1197711 0 1600571}
+Reached position 1120/1337 {1208293 0 1638216}
+Reached position 1130/1337 {1202486 0 1696282}
+Reached position 1140/1337 {1186385 1500 1760184}
+Reached position 1150/1337 {1146041 1500 1807625}
+Reached position 1160/1337 {1134343 0 1865169}
+Reached position 1170/1337 {1126560 0 1930615}
+Recv:       race||0a|
+Recv:       race||0a|
+Reached position 1180/1337 {1083695 0 1925268}
+Reached position 1190/1337 {1007050 0 1944723}
+Reached position 1200/1337 {1005774 0 1892938}
+Reached position 1210/1337 {987899 0 1833253}
+Reached position 1220/1337 {960585 0 1857077}
+Reached position 1230/1337 {896429 0 1869827}
+Reached position 1240/1337 {853183 0 1906632}
+Reached position 1250/1337 {833940 0 1961092}
+Reached position 1260/1337 {816400 0 2020846}
+Reached position 1270/1337 {796027 0 2041200}
+Reached position 1280/1337 {772771 0 2086745}
+Recv:       race||0b|
+Recv:       race||0b|
+Reached position 1290/1337 {738450 0 2094350}
+Reached position 1300/1337 {679925 0 2099562}
+Reached position 1310/1337 {621069 0 2105224}
+Recv:       0x43||5343477b|4e335645|525f5452|5553545f|54313131|314d457d|
+Recv:       0x43||5343477b|4e335645|525f5452|5553545f|54313131|314d457d|
+Press enter to continue
+Recv:       0x55||ff13|
