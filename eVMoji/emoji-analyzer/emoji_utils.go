@@ -11,18 +11,18 @@ import (
 )
 
 var emojiMap = map[string]string{
-	"💪":  "I",
-	"🤔":  "T",
-	"➕":  "+",
-	"🌠":  "*",
-	"🔀":  "S",
-	"📖":  "R",
-	"🦾":  "M",
-	"✅":  "C",
-	"💀":  "D",
-	"‼️": "!",
-	"✏️": "W",
-	"➡️": ">",
+	"💪":  "I", // push to stack
+	"🤔":  "T", // branch
+	"➕":  "+", // bitwise and 1
+	"🌠":  "*", // *(four bytes at address)
+	"🔀":  "S", // xor
+	"📖":  "R", // read
+	"🦾":  "M", // index into array
+	"✅":  "C", // or
+	"💀":  "D", // exit
+	"‼️": "!", // push
+	"✏️": "W", // print
+	"➡️": ">", // right shift by (param)
 }
 
 const encodingFile = "analysis/number-encoding.json"

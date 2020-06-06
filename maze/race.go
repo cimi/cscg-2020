@@ -60,6 +60,7 @@ func newPlayerCommand(cmdBytes []byte) *playerCommand {
 	return &playerCommand{cmd, pos, cmdBytes, ts}
 }
 
+// extracted by printing out memory values using injected dll
 var checkpoints = []position{
 	{2038800, 0, 1939300},
 	{1806600, 0, 1790100},
@@ -171,10 +172,7 @@ func winRace() {
 		rsp = bot.login()
 	}
 	log.Printf("Bot logged in successfully! %x", rsp)
-	// os.Exit(0)
 	done := make(chan bool, 1)
-	// go bot.sendLoop()
-	// go bot.recvLoop()
 	go bot.raceLoop()
 	<-done
 }
@@ -189,28 +187,10 @@ func (bot *raceBot) ensureServerConn() {
 	}
 }
 
-func (bot *raceBot) sendLoop() {
-	for msg := range bot.outgoing {
-		bot.sendOne(msg)
-	}
-}
-
 func (bot *raceBot) sendOne(msg []byte) {
 	log.Printf("Send: %s\n", parseClientMsg(msg))
 	encoded := encode(msg, 0xfe, 0xed)
 	bot.serverConn.WriteMsgUDP(encoded, nil, nil)
-}
-
-func (bot *raceBot) recvLoop() {
-	buffer := make([]byte, 4096)
-	for {
-		msg, err := bot.recvOne(buffer)
-		if err != nil {
-			log.Println(err)
-			continue
-		}
-		bot.processIncoming(msg)
-	}
 }
 
 func (bot *raceBot) heartbeat() {
@@ -232,9 +212,6 @@ func (bot *raceBot) move(dst position) {
 }
 
 func (bot *raceBot) raceLoop() {
-	// send a position update after every heartbeat
-	// client heartbeat/server heartbeat/
-	// finish the race without altering time
 	reader := bufio.NewReader(os.Stdin)
 	buffer := make([]byte, 4096)
 	atomic.StoreUint32(&bot.clientTs, uint32(startTs))
@@ -256,13 +233,10 @@ func (bot *raceBot) raceLoop() {
 				bot.incoming <- decoded
 			case "teleport":
 				if teleportCount > 3 {
-					panic("server is teleporting")
+					panic("server is teleporting us")
 				}
 				bot.outgoing <- decoded
 				teleportCount++
-				// if teleportCount > 2 {
-				//panic("did't trick it well enough")
-				// }
 			case "player":
 				// do nothing
 			default:
@@ -283,12 +257,6 @@ func (bot *raceBot) raceLoop() {
 			atomic.StoreUint32(&bot.serverTs, serverTs)
 			clientTs := atomic.LoadUint32(&bot.clientTs)
 			log.Printf("Client - server ts: %d", clientTs-serverTs)
-			// resetting client ts
-			// atomic.StoreUint32(&bot.clientTs, serverTs+10)
-			// if bot.pos.x == 0 || clientTs-serverTs > 10000 {
-			// 	// wait for the server to catch up
-			// 	continue
-			// }
 			bot.find(raceTeleport)
 			bot.heartbeat()
 			time.Sleep(1)
@@ -306,12 +274,11 @@ func (bot *raceBot) raceLoop() {
 		}
 	}
 
-	// run the race
+	// the index in the positions we've saved from the race right
+	// pointing to right after going through the teleporter
 	startIdx := 79
 	curr := startIdx
-	// bot.heartbeat()
 	for {
-		// TODO: run race with existing timestamps
 		if bot.pos.x != 0 {
 			select {
 			case hMsg := <-bot.incoming:
@@ -320,14 +287,6 @@ func (bot *raceBot) raceLoop() {
 				clientTs := atomic.LoadUint32(&bot.clientTs)
 				log.Printf("Client - server ts: %d", clientTs-serverTs)
 
-				// if clientTs-serverTs > 1000 {
-				// 	log.Printf("Client - server ts: %d", clientTs-serverTs)
-				// 	log.Printf("Waiting for server to catch up")
-				// 	bot.sendOne(heartbeatMsg(serverTs + 100))
-				// 	continue
-				// }
-
-				// resetting client ts
 				if bot.pos.equals(raceCommands[curr].position) {
 					if curr%10 == 0 {
 						fmt.Printf("Reached position %d/%d %v\n", curr, len(raceCommands), bot.pos)
@@ -337,7 +296,6 @@ func (bot *raceBot) raceLoop() {
 				atomic.StoreUint32(&bot.clientTs, raceCommands[curr].ts)
 				bot.sendOne(raceCommands[curr].original)
 				bot.pos = raceCommands[curr].position
-				// bot.find(raceCommands[curr].position)
 				bot.heartbeat()
 
 				time.Sleep(1)
@@ -429,11 +387,3 @@ func parseRaceDump(path string) []*playerCommand {
 	}
 	return result
 }
-
-// keep track of heartbeat in global var
-// when receiving from server, use previous sent heartbeat
-// when sending, use prev send heartbeat+1
-// when sending msg use heartbeat
-
-// with teleport - see log output when teleporting from dll injector
-// try teleport with a higher index

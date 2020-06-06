@@ -10,7 +10,7 @@ import (
 	"unicode/utf8"
 )
 
-// Program kills annoying linters.
+// Program is something executable by the emoji VM.
 type Program struct {
 	data []byte
 	code []*Instruction
@@ -44,7 +44,7 @@ func (p *Program) pretty(text bool) string {
 		167, "🤝 me the 🏳️",
 		187, "tRy hArder! 💀💀💀",
 		212, "Gotta go cyclic ♻️",
-		235, "Thats the flag: CSCG{}", // 257
+		235, "Thats the flag: CSCG{}",
 	)
 	res += fmt.Sprintf("Code section:\n\n")
 	for idx, i := range p.code {

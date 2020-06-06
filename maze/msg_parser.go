@@ -15,11 +15,7 @@ func decode(msg []byte) []byte {
 	result := make([]byte, len(msg)-2)
 	for idx, b := range msg[2:] {
 		result[idx] = b ^ byte(rand1)
-		// fmt.Printf("0x%2x + 0x%2x = 0x%x\n", rand1, rand2, rand1+rand2)
-		// fmt.Printf("0x%2x & 0xff = 0x%x\n", rand1+rand2, byte((rand1+rand2)&0xff))
-		// fmt.Printf("> %d = 0x%02x [0x%02x ->", idx, b, rand1)
 		rand1 = (((rand1 + rand2) & 0xff) + ((rand1 + rand2) / 0xff)) & 0xff
-		// fmt.Printf(" 0x%02x]\n", rand1)
 	}
 	return result
 }
