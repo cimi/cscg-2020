@@ -1,4 +1,4 @@
 all:
-	cd emoji-analyzer && go build -o ../emoji-analyzer
+	cd analysis-tools/ && go build -o ../analyser
 solve:
-	PWNLIB_SILENT=1 python3 solve.py | tee solve-output.txt
+	python3 solve.py

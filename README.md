@@ -298,6 +298,26 @@ func init() {
 
 I was quite happy with my interactive development environment - using `entr` I 'compiled' and ran my emoji program every time I saved the source file. This way I was able to experiment with the instructions more and reverse what some of them were doing.
 
+```
+Data section:
+
+144 -> Welcome to eVMoji 😎
+167 -> 🤝 me the 🏳️
+187 -> tRy hArder! 💀💀💀
+212 -> Gotta go cyclic ♻️
+235 -> Thats the flag: CSCG{}
+Code section:
+
+  0 |     0 |   512 |                                          💪1️⃣0️⃣2️⃣4️⃣7️⃣2️⃣ |                 I144
+  1 |    46 |   558 |                                        💪0️⃣0️⃣1️⃣6️⃣2️⃣4️⃣✏️ |                 I23W
+  2 |    98 |   610 |                                          💪1️⃣3️⃣2️⃣6️⃣7️⃣2️⃣ |                 I167
+  3 |   144 |   656 |                                        💪0️⃣0️⃣1️⃣3️⃣2️⃣4️⃣✏️ |                 I20W
+  4 |   196 |   708 |                                          💪1️⃣0️⃣1️⃣0️⃣1️⃣0️⃣ |                   I0
+  5 |   242 |   754 |                                         💪0️⃣0️⃣0️⃣0️⃣2️⃣5️⃣📖 |                 I27R
+  6 |   292 |   804 |                                          💪1️⃣0️⃣1️⃣0️⃣1️⃣0️⃣ |                   I0
+  7 |   338 |   850 |                      💪0️⃣0️⃣2️⃣5️⃣3️⃣6️⃣🦾1️⃣0️⃣1️⃣0️⃣1️⃣0️⃣🔀 |              I242M0S
+```
+
 I suspected this is a stack based programming language but I couldn't figure out what all the instructions used in the first section were doing. However, since I could modify the program easily and I could figure out control flow (where it stopped, where it branched etc.) I was able to separate out the two parts of the program and I saw there's a sequence of XOR operations against some fixed numbers that validate each of the first 23 characters individually.
 
 I couldn't figure out exactly what the instructions were doing but I could try and brute force this since the characters were independent of each other and I could get feedback for each individually. When I cut out the ending of the program I was able brute force the first part in less than 30 minutes: `n3w_ag3_v1rtu4liz4t1on_`.

@@ -16,7 +16,7 @@ type Program struct {
 	code []*Instruction
 }
 
-func (p *Program) writeBinary(path string) {
+func (p *Program) write(path string) {
 	f, err := os.Create(path)
 	defer f.Close()
 	check(err)
@@ -36,7 +36,7 @@ func (p *Program) writeDecoded(path string) {
 	}
 }
 
-func (p *Program) pretty(text bool) string {
+func (p *Program) pretty() string {
 	offset := 0
 	res := ""
 	res += fmt.Sprintf("Data section:\n\n%3d -> %s\n%3d -> %s\n%3d -> %s\n%3d -> %s\n%3d -> %s\n",
@@ -48,11 +48,7 @@ func (p *Program) pretty(text bool) string {
 	)
 	res += fmt.Sprintf("Code section:\n\n")
 	for idx, i := range p.code {
-		if text {
-			res += fmt.Sprintf("%3d | %5d | %5d | %30s | %s\n", idx, offset, offset+512, i.decoded, i.plain)
-		} else {
-			res += fmt.Sprintf("%3d | %5d | %5d | %s\n", idx, offset, offset+512, i.bytes)
-		}
+		res += fmt.Sprintf("%3d | %5d | %5d | %60s | %20s\n", idx, offset, offset+512, i.bytes, i.decoded)
 		offset += len(i.bytes)
 	}
 	return res
@@ -60,7 +56,7 @@ func (p *Program) pretty(text bool) string {
 
 func (p *Program) execute() string {
 	tmpFile := "tmp.bin"
-	p.writeBinary(tmpFile)
+	p.write(tmpFile)
 	cmd := exec.Command("./eVMoji", tmpFile)
 	out, _ := cmd.CombinedOutput()
 	// return fmt.Sprintf("%d", len(out))
